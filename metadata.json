@@ -1,0 +1,7 @@
+{
+  "name": "Civic Infrastructure Intelligence — Delhi",
+  "description": "Report civic issues and explore evidence-led infrastructure priorities across Delhi districts.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
