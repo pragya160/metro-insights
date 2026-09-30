@@ -9,6 +9,7 @@ import {
 } from '../components/map/InteractiveGoogleMap';
 import { VoiceDescriptionRecorder } from '../components/voice/VoiceDescriptionRecorder';
 import { HelpfulDetailsGuidance } from '../components/complaint/HelpfulDetailsGuidance';
+import { LiveCameraModal } from '../components/camera/LiveCameraModal';
 import { CATEGORIES, DISTRICTS } from '../data/demoData';
 import { DataService } from '../services/dataService';
 import { CategoryName, DistrictName } from '../types';
@@ -40,7 +41,6 @@ const STEPS = [
 
 export function RegisterComplaintPage() {
   const navigate = useNavigate();
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [step, setStep] = useState(0);
 
@@ -74,6 +74,11 @@ export function RegisterComplaintPage() {
   ]);
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
 
   const activeCategory = CATEGORIES.find((c) => c.name === category) || CATEGORIES[0];
 
@@ -85,7 +90,20 @@ export function RegisterComplaintPage() {
       const res = await DataService.uploadFile(file);
       setEvidenceFiles((prev) => [...prev, res.name]);
     } catch (err) {
-      console.error('File upload error', err);
+      console.warn('File upload notice', err);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handlePhotoCaptured = async (file: File, _previewUrl: string) => {
+    setUploading(true);
+    try {
+      const res = await DataService.uploadFile(file);
+      setEvidenceFiles((prev) => [...prev, res.name]);
+    } catch (err) {
+      console.warn('Captured photo upload notice', err);
+      setEvidenceFiles((prev) => [...prev, file.name]);
     } finally {
       setUploading(false);
     }
@@ -527,43 +545,93 @@ export function RegisterComplaintPage() {
                 </p>
               </div>
 
+              {/* Hidden File Inputs */}
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/*,video/*"
+                accept="image/*"
                 className="hidden"
                 onChange={handleFileUpload}
+              />
+              <input
+                ref={cameraInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                className="hidden"
+                onChange={handleFileUpload}
+              />
+              <input
+                ref={videoInputRef}
+                type="file"
+                accept="video/*"
+                className="hidden"
+                onChange={handleFileUpload}
+              />
+
+              {/* Live Camera Viewfinder Modal */}
+              <LiveCameraModal
+                isOpen={isCameraOpen}
+                onClose={() => setIsCameraOpen(false)}
+                onPhotoCaptured={handlePhotoCaptured}
               />
 
               <div className="grid gap-3 sm:grid-cols-3">
                 <Button
                   type="button"
                   variant="outline"
-                  className="h-20 flex-col gap-2"
-                  onClick={() => addSimulatedFile('Photo')}
+                  className="h-24 flex-col gap-2 border-secondary/50 bg-secondary/5 hover:bg-secondary/15 transition"
+                  onClick={() => setIsCameraOpen(true)}
                 >
-                  <Camera className="size-5 text-secondary" />
-                  Take Photo
+                  <Camera className="size-6 text-secondary animate-bounce" />
+                  <div className="text-center">
+                    <span className="block font-bold text-xs text-foreground">Take Photo</span>
+                    <span className="text-[10px] text-muted-foreground">Live viewfinder or webcam</span>
+                  </div>
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
-                  className="h-20 flex-col gap-2"
+                  className="h-24 flex-col gap-2 hover:bg-muted/50 transition"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploading}
                 >
-                  <Upload className="size-5 text-secondary" />
-                  {uploading ? 'Uploading...' : 'Upload Photo'}
+                  <Upload className="size-6 text-primary" />
+                  <div className="text-center">
+                    <span className="block font-bold text-xs text-foreground">
+                      {uploading ? 'Uploading...' : 'Upload Photo'}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground">From device gallery</span>
+                  </div>
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
-                  className="h-20 flex-col gap-2"
-                  onClick={() => addSimulatedFile('Video')}
+                  className="h-24 flex-col gap-2 hover:bg-muted/50 transition"
+                  onClick={() => videoInputRef.current?.click()}
+                  disabled={uploading}
                 >
-                  <Video className="size-5 text-secondary" />
-                  Upload Video
+                  <Video className="size-6 text-emerald-500" />
+                  <div className="text-center">
+                    <span className="block font-bold text-xs text-foreground">Record / Upload Video</span>
+                    <span className="text-[10px] text-muted-foreground">Short site clip</span>
+                  </div>
                 </Button>
+              </div>
+
+              {/* Fast Mobile Camera Shortcut */}
+              <div className="flex items-center justify-between rounded-lg border border-border/60 bg-muted/30 px-3.5 py-2.5 text-xs">
+                <span className="text-muted-foreground">
+                  Using a phone or tablet? Launch your device's native camera directly:
+                </span>
+                <button
+                  type="button"
+                  onClick={() => cameraInputRef.current?.click()}
+                  className="font-semibold text-secondary hover:underline cursor-pointer ml-2 shrink-0 flex items-center gap-1"
+                >
+                  <Camera className="size-3.5" />
+                  Native Camera
+                </button>
               </div>
 
               {/* Recorded Voice Note Audio Preview if available */}

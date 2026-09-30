@@ -13,7 +13,10 @@ import {
   User,
   LogOut,
   Landmark,
+  Sun,
+  Moon,
 } from 'lucide-react';
+import { useTheme } from '../../context/ThemeContext';
 
 export const CITIZEN_LINKS: [string, string][] = [
   ['Home', '/'],
@@ -46,6 +49,7 @@ export function Navbar({ onOpenAuth, language, onToggleLanguage }: NavbarProps) 
   const [navOpen, setNavOpen] = useState(false);
   const [user, setUser] = useState<UserProfile | null>(DataService.getCurrentUser());
   const location = useLocation();
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     const unsub = subscribeToDataChanges(() => {
@@ -136,6 +140,29 @@ export function Navbar({ onOpenAuth, language, onToggleLanguage }: NavbarProps) 
               </Link>
             </Button>
 
+            {/* Dark / Light Mode Toggle Button */}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={toggleTheme}
+              title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              className="h-9 gap-1.5 px-3 text-xs font-semibold border-border bg-surface/50 hover:bg-surface text-foreground"
+              aria-label="Toggle color theme"
+            >
+              {theme === 'dark' ? (
+                <>
+                  <Sun className="size-4 text-amber-400" />
+                  <span className="hidden xl:inline">Light Mode</span>
+                </>
+              ) : (
+                <>
+                  <Moon className="size-4 text-secondary" />
+                  <span className="hidden xl:inline">Dark Mode</span>
+                </>
+              )}
+            </Button>
+
             <Button
               variant="outline"
               size="icon"
@@ -146,16 +173,32 @@ export function Navbar({ onOpenAuth, language, onToggleLanguage }: NavbarProps) 
             </Button>
           </div>
 
-          {/* Mobile Menu Button */}
-          <Button
-            variant="outline"
-            size="icon"
-            className="lg:hidden"
-            onClick={() => setNavOpen(!navOpen)}
-            aria-label="Toggle navigation menu"
-          >
-            {navOpen ? <X className="size-4" /> : <Menu className="size-4" />}
-          </Button>
+          {/* Mobile Right Controls: Theme Toggle & Menu Button */}
+          <div className="flex items-center gap-2 lg:hidden">
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              onClick={toggleTheme}
+              title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              className="size-9 border-border bg-surface text-foreground"
+              aria-label="Toggle color theme"
+            >
+              {theme === 'dark' ? (
+                <Sun className="size-4 text-amber-400" />
+              ) : (
+                <Moon className="size-4 text-secondary" />
+              )}
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setNavOpen(!navOpen)}
+              aria-label="Toggle navigation menu"
+            >
+              {navOpen ? <X className="size-4" /> : <Menu className="size-4" />}
+            </Button>
+          </div>
         </div>
 
         {/* Dropdown Menu Overlay */}
@@ -216,14 +259,34 @@ export function Navbar({ onOpenAuth, language, onToggleLanguage }: NavbarProps) 
             </div>
 
             {/* Mobile login footer */}
-            <div className="border-t border-border px-5 py-3 lg:hidden flex justify-between items-center bg-background/50">
-              <button
-                type="button"
-                onClick={onToggleLanguage}
-                className="text-xs text-muted-foreground"
-              >
-                Language: {language} / हिन्दी
-              </button>
+            <div className="border-t border-border px-5 py-3 lg:hidden flex flex-wrap justify-between items-center gap-3 bg-background/50">
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={onToggleLanguage}
+                  className="text-xs text-muted-foreground hover:text-foreground"
+                >
+                  Language: {language} / हिन्दी
+                </button>
+                <span className="text-border">|</span>
+                <button
+                  type="button"
+                  onClick={toggleTheme}
+                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground cursor-pointer"
+                >
+                  {theme === 'dark' ? (
+                    <>
+                      <Sun className="size-3 text-amber-400" />
+                      <span>Light Theme</span>
+                    </>
+                  ) : (
+                    <>
+                      <Moon className="size-3 text-secondary" />
+                      <span>Dark Theme</span>
+                    </>
+                  )}
+                </button>
+              </div>
               {user ? (
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-foreground">{user.fullName}</span>

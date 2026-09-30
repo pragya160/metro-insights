@@ -15,10 +15,7 @@ export function GoogleMapsProvider({ children }: GoogleMapsProviderProps) {
   }
 
   return (
-    <APIProvider
-      apiKey={GOOGLE_MAPS_API_KEY}
-      solutionChannel="GMP_mcp_codeassist_v1_aistudio"
-    >
+    <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
       {children}
     </APIProvider>
   );

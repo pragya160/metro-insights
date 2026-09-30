@@ -373,7 +373,6 @@ export function InteractiveGoogleMap({
           gestureHandling="greedy"
           disableDefaultUI={false}
           onClick={handleMapClick}
-          internalUsageAttributionIds={['gmp_mcp_codeassist_v1_aistudio']}
           className="w-full h-full"
         >
           {/* Picker Mode Draggable Marker */}

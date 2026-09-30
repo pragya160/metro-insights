@@ -52,10 +52,10 @@ export function GovernmentSubnav() {
             key={item.to}
             to={item.to}
             className={cn(
-              'rounded-md px-3 py-1.5 text-xs font-medium whitespace-nowrap transition',
+              'rounded-none border border-transparent px-3.5 py-1.5 text-xs font-medium whitespace-nowrap transition',
               location.pathname === item.to
-                ? 'bg-primary text-primary-foreground font-semibold shadow'
-                : 'text-muted-foreground hover:bg-surface hover:text-foreground'
+                ? 'bg-primary text-primary-foreground font-semibold shadow border-primary'
+                : 'text-muted-foreground hover:bg-surface hover:text-foreground hover:border-border'
             )}
           >
             {item.label}

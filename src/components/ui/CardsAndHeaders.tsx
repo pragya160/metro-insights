@@ -11,7 +11,7 @@ export function Card({
   return (
     <div
       className={cn(
-        'rounded-lg border border-border bg-surface p-5 text-card-foreground',
+        'rounded-none border border-border bg-surface p-5 text-card-foreground',
         className
       )}
     >
@@ -32,7 +32,7 @@ export function Badge({ children }: { children: React.ReactNode }) {
   return (
     <span
       className={cn(
-        'inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold',
+        'inline-flex items-center rounded-none border px-2.5 py-1 text-[11px] font-semibold',
         colorClass
       )}
     >
