@@ -9,6 +9,7 @@ import { Navbar, Footer } from './components/layout/Navbar';
 import { AuthModal } from './components/layout/AuthModal';
 import { GoogleMapsProvider } from './components/map/GoogleMapsProvider';
 import { ThemeProvider } from './context/ThemeContext';
+import { LanguageProvider } from './context/LanguageContext';
 
 import { HomePage } from './pages/HomePage';
 import {
@@ -47,43 +48,22 @@ function ScrollToTop() {
 export default function App() {
   const [authOpen, setAuthOpen] = useState(false);
   const [authRole, setAuthRole] = useState<'citizen' | 'official'>('citizen');
-  const [language, setLanguage] = useState<'English' | 'हिन्दी'>('English');
-  const [quotaExceeded, setQuotaExceeded] = useState(false);
-
-  useEffect(() => {
-    const handleQuota = () => setQuotaExceeded(true);
-    window.addEventListener('gmp-quota-exceeded', handleQuota);
-    return () => window.removeEventListener('gmp-quota-exceeded', handleQuota);
-  }, []);
-
   const handleOpenAuth = (role: 'citizen' | 'official' = 'citizen') => {
     setAuthRole(role);
     setAuthOpen(true);
   };
 
-  const handleToggleLanguage = () => {
-    setLanguage((prev) => (prev === 'English' ? 'हिन्दी' : 'English'));
-  };
-
   return (
     <ThemeProvider>
-      <GoogleMapsProvider>
-        <BrowserRouter>
-          <ScrollToTop />
-          <div className="flex min-h-screen flex-col bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary">
-          {quotaExceeded && (
-            <div className="bg-amber-50 border-b border-amber-200 text-amber-900 px-4 py-2.5 text-xs md:text-sm text-center sticky top-0 z-50 shadow-sm">
-              <span>
-                Google Maps API quota exceeded or key unavailable. Please verify your map credentials in your environment variables.
-              </span>
-            </div>
-          )}
+      <LanguageProvider>
+        <GoogleMapsProvider>
+          <BrowserRouter>
+            <ScrollToTop />
+            <div className="flex min-h-screen flex-col bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary">
 
-          <Navbar
-            onOpenAuth={handleOpenAuth}
-            language={language}
-            onToggleLanguage={handleToggleLanguage}
-          />
+            <Navbar
+              onOpenAuth={handleOpenAuth}
+            />
 
         <div className="flex-1">
           <Routes>
@@ -138,6 +118,7 @@ export default function App() {
       </div>
     </BrowserRouter>
   </GoogleMapsProvider>
+    </LanguageProvider>
 </ThemeProvider>
 );
 }

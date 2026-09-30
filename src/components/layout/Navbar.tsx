@@ -9,14 +9,15 @@ import {
   Menu,
   X,
   ChevronRight,
-  ShieldAlert,
   User,
   LogOut,
   Landmark,
   Sun,
   Moon,
+  Languages,
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
+import { useLanguage } from '../../context/LanguageContext';
 
 export const CITIZEN_LINKS: [string, string][] = [
   ['Home', '/'],
@@ -41,15 +42,37 @@ export const GOVERNMENT_LINKS: [string, string][] = [
 
 interface NavbarProps {
   onOpenAuth: (role?: 'citizen' | 'official') => void;
-  language: 'English' | 'हिन्दी';
-  onToggleLanguage: () => void;
+  language?: 'English' | 'हिन्दी';
+  onToggleLanguage?: () => void;
 }
 
-export function Navbar({ onOpenAuth, language, onToggleLanguage }: NavbarProps) {
+export function Navbar({ onOpenAuth }: NavbarProps) {
   const [navOpen, setNavOpen] = useState(false);
   const [user, setUser] = useState<UserProfile | null>(DataService.getCurrentUser());
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
+  const { language, toggleLanguage, t } = useLanguage();
+
+  const citizenLinks = [
+    { label: language === 'hi' ? 'मुख्य पृष्ठ' : 'Home', href: '/' },
+    { label: language === 'hi' ? 'शिकायत दर्ज करें' : 'Register a Complaint', href: '/register-complaint' },
+    { label: language === 'hi' ? 'मेरी शिकायतें' : 'My Complaints', href: '/my-complaints' },
+    { label: language === 'hi' ? 'मेरा जिला' : 'My District', href: '/my-district' },
+    { label: language === 'hi' ? 'मांग मानचित्र' : 'Demand Map', href: '/demand-map' },
+    { label: language === 'hi' ? 'विकास रिपोर्ट' : 'Development Insights', href: '/development-insights' },
+    { label: language === 'hi' ? 'जन सूचनाएं' : 'Notices / Updates', href: '/notices' },
+    { label: language === 'hi' ? 'हमारे बारे में' : 'About / How It Works', href: '/about' },
+  ];
+
+  const govLinks = [
+    { label: language === 'hi' ? 'सरकारी डैशबोर्ड' : 'Government Dashboard', href: '/government' },
+    { label: language === 'hi' ? 'जिला स्थिति' : 'District Overview', href: '/government/district-overview' },
+    { label: language === 'hi' ? 'मांग हॉटस्पॉट' : 'Demand Hotspots', href: '/government/demand-hotspots' },
+    { label: language === 'hi' ? 'अवसंरचना अभाव' : 'Infrastructure Gaps', href: '/government/infrastructure-gaps' },
+    { label: language === 'hi' ? 'विकास प्राथमिकताएं' : 'Development Priorities', href: '/government/development-priorities' },
+    { label: language === 'hi' ? 'परियोजनाएं और बजट' : 'Projects & Investment', href: '/government/projects-investment' },
+    { label: language === 'hi' ? 'प्रभाव ट्रैकिंग' : 'Impact / Action Tracking', href: '/government/impact-tracking' },
+  ];
 
   useEffect(() => {
     const unsub = subscribeToDataChanges(() => {
@@ -72,9 +95,10 @@ export function Navbar({ onOpenAuth, language, onToggleLanguage }: NavbarProps) 
       >
         <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary animate-ping" />
         <span>
-          <b className="font-semibold text-foreground">NOTICE</b> · New infrastructure development
-          guidelines · 3 Delhi districts currently monitored ·{' '}
-          <span className="text-secondary hover:underline">View latest updates →</span>
+          <b className="font-semibold text-foreground">
+            {language === 'hi' ? 'सूचना' : 'NOTICE'}
+          </b> · {t('topNotice')}{' '}
+          <span className="text-secondary hover:underline">{t('viewUpdates')}</span>
         </span>
       </Link>
 
@@ -88,22 +112,25 @@ export function Navbar({ onOpenAuth, language, onToggleLanguage }: NavbarProps) 
             </span>
             <span className="min-w-0">
               <span className="block truncate text-sm font-bold sm:text-base">
-                Civic Infrastructure Intelligence
+                {t('appName')}
               </span>
               <span className="hidden text-[10px] text-muted-foreground sm:block">
-                Citizen Demand • Infrastructure • Development
+                {t('appTagline')}
               </span>
             </span>
           </Link>
 
           {/* Right Header Navigation */}
-          <div className="hidden items-center gap-2 lg:flex">
+          <div className="hidden items-center gap-2.5 lg:flex">
+            {/* Language Switcher */}
             <button
               type="button"
-              onClick={onToggleLanguage}
-              className="px-3 py-2 text-xs text-muted-foreground transition hover:text-foreground cursor-pointer rounded-md hover:bg-surface"
+              onClick={toggleLanguage}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-foreground border border-border bg-surface hover:bg-accent rounded-md transition cursor-pointer"
+              title="Switch Language / भाषा बदलें"
             >
-              {language} / हिन्दी
+              <Languages className="size-3.5 text-primary" />
+              <span>{language === 'en' ? '🇮🇳 हिन्दी' : '🇬🇧 English'}</span>
             </button>
 
             {user ? (
@@ -129,18 +156,24 @@ export function Navbar({ onOpenAuth, language, onToggleLanguage }: NavbarProps) 
                 size="sm"
                 onClick={() => onOpenAuth('citizen')}
               >
-                Citizen Login
+                {language === 'hi' ? 'नागरिक लॉगिन' : 'Citizen Login'}
               </Button>
             )}
 
             <Button asChild size="sm">
               <Link to="/government">
                 <Landmark className="size-4" />
-                Policy Access
+                {language === 'hi' ? 'सरकारी नीति क्षेत्र' : 'Policy Access'}
               </Link>
             </Button>
 
-            {/* Dark / Light Mode Toggle Button */}
+            <Button asChild variant="secondary" size="sm">
+              <Link to="/register-complaint">
+                {language === 'hi' ? 'शिकायत दर्ज करें' : 'Report Issue'}
+              </Link>
+            </Button>
+
+            {/* Dark/Light Mode Toggle */}
             <Button
               type="button"
               variant="outline"
@@ -153,12 +186,12 @@ export function Navbar({ onOpenAuth, language, onToggleLanguage }: NavbarProps) 
               {theme === 'dark' ? (
                 <>
                   <Sun className="size-4 text-amber-400" />
-                  <span className="hidden xl:inline">Light Mode</span>
+                  <span className="hidden xl:inline">{language === 'hi' ? 'लाइट' : 'Light'}</span>
                 </>
               ) : (
                 <>
                   <Moon className="size-4 text-secondary" />
-                  <span className="hidden xl:inline">Dark Mode</span>
+                  <span className="hidden xl:inline">{language === 'hi' ? 'डार्क' : 'Dark'}</span>
                 </>
               )}
             </Button>
@@ -173,8 +206,16 @@ export function Navbar({ onOpenAuth, language, onToggleLanguage }: NavbarProps) 
             </Button>
           </div>
 
-          {/* Mobile Right Controls: Theme Toggle & Menu Button */}
+          {/* Mobile Right Controls */}
           <div className="flex items-center gap-2 lg:hidden">
+            <button
+              type="button"
+              onClick={toggleLanguage}
+              className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-foreground border border-border bg-surface rounded-md"
+            >
+              <Languages className="size-3.5 text-primary" />
+              <span>{language === 'en' ? 'हिन्दी' : 'EN'}</span>
+            </button>
             <Button
               type="button"
               variant="outline"
@@ -208,10 +249,10 @@ export function Navbar({ onOpenAuth, language, onToggleLanguage }: NavbarProps) 
               {/* Citizen Services */}
               <div>
                 <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-primary">
-                  Citizen Services
+                  {language === 'hi' ? 'नागरिक सेवाएं' : 'Citizen Services'}
                 </p>
                 <div className="grid gap-1 sm:grid-cols-2">
-                  {CITIZEN_LINKS.map(([label, href]) => (
+                  {citizenLinks.map(({ label, href }) => (
                     <Link
                       key={href}
                       to={href}
@@ -228,19 +269,13 @@ export function Navbar({ onOpenAuth, language, onToggleLanguage }: NavbarProps) 
                 </div>
               </div>
 
-              {/* Government & Policy */}
+              {/* Government / Policy Area */}
               <div>
-                <div className="mb-3 flex items-center justify-between">
-                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-secondary">
-                    Government & Policy
-                  </p>
-                  <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
-                    <ShieldAlert className="size-3 text-secondary" />
-                    Restricted Workspace
-                  </span>
-                </div>
+                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-secondary">
+                  {language === 'hi' ? 'सरकारी नीति कार्यक्षेत्र' : 'Evidence for Policy (Government)'}
+                </p>
                 <div className="grid gap-1 sm:grid-cols-2">
-                  {GOVERNMENT_LINKS.map(([label, href]) => (
+                  {govLinks.map(({ label, href }) => (
                     <Link
                       key={href}
                       to={href}
@@ -263,28 +298,11 @@ export function Navbar({ onOpenAuth, language, onToggleLanguage }: NavbarProps) 
               <div className="flex items-center gap-3">
                 <button
                   type="button"
-                  onClick={onToggleLanguage}
-                  className="text-xs text-muted-foreground hover:text-foreground"
-                >
-                  Language: {language} / हिन्दी
-                </button>
-                <span className="text-border">|</span>
-                <button
-                  type="button"
-                  onClick={toggleTheme}
+                  onClick={toggleLanguage}
                   className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground cursor-pointer"
                 >
-                  {theme === 'dark' ? (
-                    <>
-                      <Sun className="size-3 text-amber-400" />
-                      <span>Light Theme</span>
-                    </>
-                  ) : (
-                    <>
-                      <Moon className="size-3 text-secondary" />
-                      <span>Dark Theme</span>
-                    </>
-                  )}
+                  <Languages className="size-3.5 text-primary" />
+                  <span>{language === 'en' ? '🇮🇳 हिन्दी में देखें' : '🇬🇧 Switch to English'}</span>
                 </button>
               </div>
               {user ? (
@@ -296,7 +314,7 @@ export function Navbar({ onOpenAuth, language, onToggleLanguage }: NavbarProps) 
                 </div>
               ) : (
                 <Button size="sm" variant="outline" onClick={() => { setNavOpen(false); onOpenAuth('citizen'); }}>
-                  Citizen Sign In
+                  {language === 'hi' ? 'नागरिक लॉगिन' : 'Citizen Sign In'}
                 </Button>
               )}
             </div>
@@ -308,12 +326,19 @@ export function Navbar({ onOpenAuth, language, onToggleLanguage }: NavbarProps) 
 }
 
 export function Footer() {
+  const { language } = useLanguage();
   return (
     <footer className="border-t border-border bg-surface">
       <div className="mx-auto flex max-w-[1440px] flex-col gap-3 px-5 py-8 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-        <span>Prototype • Fictional demonstration data • Delhi, India</span>
         <span>
-          Advisory intelligence for human policy review — not automated decision-making.
+          {language === 'hi'
+            ? '© 2026 नागरिक अवसंरचना आसूचना प्रणाली (दिल्ली एनसीआर)'
+            : '© 2026 Civic Infrastructure Intelligence (Delhi NCR)'}
+        </span>
+        <span>
+          {language === 'hi'
+            ? 'नीति समीक्षा के लिए सलाहकार आसूचना प्रणाली — स्वचालित निर्णय नहीं।'
+            : 'Advisory intelligence for human policy review — not automated decision-making.'}
         </span>
       </div>
     </footer>

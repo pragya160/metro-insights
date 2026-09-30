@@ -14,6 +14,7 @@ import { CATEGORIES, DISTRICTS } from '../data/demoData';
 import { DataService } from '../services/dataService';
 import { CategoryName, DistrictName } from '../types';
 import { cn } from '../lib/utils';
+import { useLanguage } from '../context/LanguageContext';
 import {
   Check,
   ChevronRight,
@@ -31,16 +32,13 @@ import {
   Navigation,
 } from 'lucide-react';
 
-const STEPS = [
-  'Where & Who',
-  'Issue Category',
-  'Description',
-  'Evidence',
-  'Review & Submit',
-];
-
 export function RegisterComplaintPage() {
   const navigate = useNavigate();
+  const { language } = useLanguage();
+
+  const STEPS = language === 'hi'
+    ? ['स्थान व विवरण', 'समस्या श्रेणी', 'विवरण', 'साक्ष्य', 'समीक्षा व सबमिट']
+    : ['Where & Who', 'Issue Category', 'Description', 'Evidence', 'Review & Submit'];
 
   const [step, setStep] = useState(0);
 
@@ -195,9 +193,13 @@ export function RegisterComplaintPage() {
   return (
     <main>
       <PageHeader
-        eyebrow="Citizen Reporting"
-        title="Register a Complaint"
-        description="A structured process connecting your report with district infrastructure evidence."
+        eyebrow={language === 'hi' ? 'नागरिक सेवा' : 'Citizen Reporting'}
+        title={language === 'hi' ? 'नागरिक शिकायत दर्ज करें' : 'Register a Complaint'}
+        description={
+          language === 'hi'
+            ? 'आपकी रिपोर्ट को सीधे नगर निगम अधिकारियों और जिला बुनियादी ढांचे के साक्ष्य से जोड़ने वाली प्रक्रिया।'
+            : 'A structured process connecting your report with district infrastructure evidence.'
+        }
       />
 
       <div className="page-container space-y-8 py-8">
@@ -765,7 +767,7 @@ export function RegisterComplaintPage() {
             {step > 0 ? (
               <Button variant="outline" type="button" onClick={() => setStep(step - 1)}>
                 <ArrowLeft className="size-4" />
-                Back
+                {language === 'hi' ? 'पीछे जाएं' : 'Back'}
               </Button>
             ) : (
               <span />
@@ -773,13 +775,15 @@ export function RegisterComplaintPage() {
 
             {step < 4 ? (
               <Button type="button" onClick={() => setStep(step + 1)}>
-                Continue
+                {language === 'hi' ? 'अगला चरण' : 'Continue'}
                 <ChevronRight className="size-4" />
               </Button>
             ) : (
               <Button type="button" onClick={handleSubmit} disabled={submitting}>
                 <Check className="size-4" />
-                {submitting ? 'Submitting...' : 'Submit Complaint'}
+                {submitting
+                  ? (language === 'hi' ? 'दर्ज हो रहा है...' : 'Submitting...')
+                  : (language === 'hi' ? 'शिकायत दर्ज करें' : 'Submit Complaint')}
               </Button>
             )}
           </div>

@@ -8,6 +8,7 @@ import { DataService, subscribeToDataChanges } from '../services/dataService';
 import { Complaint, ComplaintStatus } from '../types';
 import { TIMELINE_STAGES } from '../data/demoData';
 import { cn } from '../lib/utils';
+import { useLanguage } from '../context/LanguageContext';
 import {
   FilePlus,
   ArrowRight,
@@ -21,6 +22,7 @@ import {
 } from 'lucide-react';
 
 export function MyComplaintsPage() {
+  const { language } = useLanguage();
   const [complaints, setComplaints] = useState<Complaint[]>([]);
   const [filter, setFilter] = useState<string>('All');
   const [search, setSearch] = useState<string>('');
@@ -51,14 +53,18 @@ export function MyComplaintsPage() {
   return (
     <main>
       <PageHeader
-        eyebrow="Citizen Dashboard"
-        title="My Complaints"
-        description="Track your reports and follow action updates from submission to resolution."
+        eyebrow={language === 'hi' ? 'नागरिक सेवा' : 'Citizen Dashboard'}
+        title={language === 'hi' ? 'मेरी शिकायतें' : 'My Complaints'}
+        description={
+          language === 'hi'
+            ? 'अपनी दर्ज शिकायतों को ट्रैक करें और समाधान तक की स्थिति देखें।'
+            : 'Track your reports and follow action updates from submission to resolution.'
+        }
         action={
           <Button asChild>
             <Link to="/register-complaint">
               <FilePlus className="size-4" />
-              New complaint
+              {language === 'hi' ? 'नई शिकायत दर्ज करें' : 'New complaint'}
             </Link>
           </Button>
         }
@@ -70,14 +76,19 @@ export function MyComplaintsPage() {
         {/* Filters and Search */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-wrap gap-2">
-            {['All', 'Under Review', 'Action Initiated', 'Resolved'].map((tab) => (
+            {[
+              { id: 'All', label: language === 'hi' ? 'सभी' : 'All' },
+              { id: 'Under Review', label: language === 'hi' ? 'समीक्षाधीन' : 'Under Review' },
+              { id: 'Action Initiated', label: language === 'hi' ? 'कार्रवाई शुरू' : 'Action Initiated' },
+              { id: 'Resolved', label: language === 'hi' ? 'समाधान हो गया' : 'Resolved' },
+            ].map(({ id, label }) => (
               <Button
-                key={tab}
-                variant={filter === tab ? 'default' : 'outline'}
+                key={id}
+                variant={filter === id ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setFilter(tab)}
+                onClick={() => setFilter(id)}
               >
-                {tab}
+                {label}
               </Button>
             ))}
           </div>
@@ -85,7 +96,11 @@ export function MyComplaintsPage() {
           <div className="w-full sm:w-64">
             <input
               type="text"
-              placeholder="Search reports or locality..."
+              placeholder={
+                language === 'hi'
+                  ? 'शिकायत संख्या या क्षेत्र खोजें...'
+                  : 'Search reports or locality...'
+              }
               className="h-9 w-full rounded-md border border-input bg-surface px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
